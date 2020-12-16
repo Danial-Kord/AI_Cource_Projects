@@ -15,22 +15,18 @@ class Placement:
         self.length = 0
 
     def addCard(self,input,noCondition = False):
-        if noCondition:
-            self.contain.append(input)
-            self.length += 1
+        self.contain.append(input)
+        self.length += 1
+
+
+    def canAddCard(self,input,noCondition = False):
+        if noCondition or self.length == 0:
             return True  
         else:    
-            if self.contain.__len__ == 0:
-                self.contain.append(input)
-                self.length += 1
-                return True
-            elif self.contain[self.length-1].number > input.number:
-                self.contain.append(input)
-                self.length += 1
+            if self.contain[self.length-1].number > input.number:
                 return True
             else:
                 return False
-
     def isNotEmpty(self):
         return self.length > 0
 
@@ -41,7 +37,9 @@ class Placement:
         self.length-=1
         return self.contain.pop(self.length)
     
-    def finalState(self,maxLength):
+    def PlacementfinalState(self,maxLength):
+        if(self.length == 0):
+            return True
         if(self.length == maxLength):
             for i in range(1,maxLength):
                 if self.contain[i-1].color != self.contain[i].color:
@@ -57,7 +55,7 @@ class Placement:
         return t
 
 class Node:
-    def __init__(self,length,array):
+    def __init__(self,length,lastNodePlacement):
         # self.placements = []
         # for i in range(length):
         #     elemnt = array[i]
@@ -65,18 +63,30 @@ class Node:
         #     p = Placement()
         #     p.addCard(.contain[i])
         #     self.placements.append(p)
-        self.placements = copy.deepcopy(array)
+        self.placements = copy.deepcopy(lastNodePlacement)
         self.length = length
 
-    def changeCardPlace(self,i,j):
+    def changeCardPlace(self,i,j,explored = None):
         if self.placements[i].isNotEmpty():
-            if self.placements[j].addCard(self.placements[i].seeLastCard()):
+            if self.placements[j].canAddCard(self.placements[i].seeLastCard()):
+                # if explored != None:
+                #     for b in explored:
+                #         if b.currentNodeState() == self.currentNodeState():
+                #             return False
+                self.placements[j].addCard(self.placements[i].seeLastCard())
                 self.placements[i].popLastCard()
                 return True
         else:
             return False
 
     def currentNodeState(self):
+        t = ""
         for i in range(self.length):
             print("K"+ str(i+1) + ":")
             print(self.placements[i].placementData())
+
+    def checkFinalState(self,maxLength):
+        for i in self.placements:
+            if(i.PlacementfinalState(maxLength) == False):
+                return False
+        return True
