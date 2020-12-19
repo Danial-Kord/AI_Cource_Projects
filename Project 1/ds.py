@@ -49,6 +49,9 @@ class Placement:
             return False
 
     def placementData(self):
+        if(self.length == 0):
+            return "#"
+        
         t = ""
         for i in self.contain:
             t += i.getCardData() + " "
@@ -66,24 +69,51 @@ class Node:
         self.placements = copy.deepcopy(lastNodePlacement)
         self.length = length
 
-    def changeCardPlace(self,i,j,explored = None):
+    def changeCardPlace(self,i,j,explored = None,frontier = None):
+        # print("change status from :")
+        # self.currentNodeState()
         if self.placements[i].isNotEmpty():
             if self.placements[j].canAddCard(self.placements[i].seeLastCard()):
-                # if explored != None:
-                #     for b in explored:
-                #         if b.currentNodeState() == self.currentNodeState():
-                #             return False
                 self.placements[j].addCard(self.placements[i].seeLastCard())
                 self.placements[i].popLastCard()
+                # print("to : ")
+                # self.currentNodeState()
+                # print()
+                if explored is not None:
+                    for b in explored:
+                        if self.compareWith(b):
+                            self.placements[i].addCard(self.placements[j].seeLastCard())
+                            self.placements[j].popLastCard()
+                            return False
+                if frontier is not None:
+                    for b in frontier:
+                        if self.compareWith(b):
+                            self.placements[i].addCard(self.placements[j].seeLastCard())
+                            self.placements[j].popLastCard()
+                            return False
                 return True
         else:
             return False
 
+    def compareWith(self,otherNode):
+        check = False
+        for j in range(self.length):
+            check = False
+            for i in range(self.length):
+                if self.PlaceIndexTextData(i) == otherNode.PlaceIndexTextData(j):
+                    check = True
+            if check == False:
+                return False
+        return True
+
+    def PlaceIndexTextData(self,index):
+        t = self.placements[index].placementData()
+        return t
+
     def currentNodeState(self):
-        t = ""
         for i in range(self.length):
-            print("K"+ str(i+1) + ":")
-            print(self.placements[i].placementData())
+            print("K"+ str(i+1) + ": " +self.placements[i].placementData())
+
 
     def checkFinalState(self,maxLength):
         for i in self.placements:

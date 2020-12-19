@@ -2,30 +2,26 @@ import ds
 
 frontier = []
 explored = []
-k = 3 #k places
 
-place1 = ds.Placement()
-card1 = ds.Card("R",1)
-card2 = ds.Card("G",2)
-place1.addCard(card1,True)
-place1.addCard(card2,True)
+input1 = input("enter: stations(K) Colors(m) number od every card(n) : ")
+input1 = input1.split(" ")
+k = int(input1[0]) #k places
+m = int(input1[1]) #color types
+n = int(input1[2]) #number of every color
 
-print(place1.placementData())
+places = []
+for i in range(k):
+    t = input("enter values with space blank between them : ")
+    placementI = ds.Placement()
+    if(t != "#"):
+        data = t.split(" ")
+        for j in data:
+            placementI.addCard(ds.Card(j[1],int(j[0])))
+    places.append(placementI)
 
-place2 = ds.Placement()
-card12 = ds.Card("G",3)
-card22 = ds.Card("R",4)
-place2.addCard(card12,True)
-place2.addCard(card22,True)
-
-place3 = ds.Placement()
 
 
-print(place2.placementData())
-
-places = [place1,place2,place3]
-
-root = ds.Node(3,places)
+root = ds.Node(k,places)
 root.currentNodeState()
 
 
@@ -51,28 +47,28 @@ while notFinished:
     if len(frontier) == 0:
         break
     expandNode = frontier.pop(0)
-    explored.append(expandNode)
     newNode = ds.Node(k,expandNode.placements)
+    explored.append(expandNode)
 
     print("")
     print("new node")
     newNode.currentNodeState()
 
     for i in range(k):
-        if(notFinished):
-            for j in range(i+1,k):
-                # print(i)
-                # print(j)
-                # print(" ")
-                if(newNode.changeCardPlace(i,j)):
-                    # print("append")
-                    frontier.append(newNode)
-                    if(newNode.checkFinalState(2)):
-                        print("")
-                        print("final result")
-                        newNode.currentNodeState()
-                        notFinished = False
-                        break
-                    newNode = ds.Node(k,expandNode.placements)
-                    
-                    
+        for j in range(k):
+            if j == i:
+                continue
+            # print(i)
+            # print(j)
+            # print(" ")
+            if newNode.changeCardPlace(i, j, explored, frontier):
+                # print("append")
+                frontier.append(newNode)
+                if newNode.checkFinalState(n):
+                    print("")
+                    print("final result")
+                    newNode.currentNodeState()
+                    notFinished = False
+                    break
+                newNode = ds.Node(k,expandNode.placements)
+
