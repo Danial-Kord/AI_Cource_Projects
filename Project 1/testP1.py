@@ -4,24 +4,16 @@ frontier = []
 explored = []
 k = 3 #k places
 
-place1 = ds.Placement()
-card1 = ds.Card("R",1)
-card2 = ds.Card("G",2)
-place1.addCard(card1,True)
-place1.addCard(card2,True)
+place1 = ds.Placement("3R3G4R")
+
 
 print(place1.placementData())
 
-place2 = ds.Placement()
-card12 = ds.Card("G",3)
-card22 = ds.Card("R",4)
-place2.addCard(card12,True)
-place2.addCard(card22,True)
-
-place3 = ds.Placement()
+place2 = ds.Placement("7G1G2R")
 
 
-print(place2.placementData())
+place3 = ds.Placement("")
+
 
 places = [place1,place2,place3]
 
@@ -59,7 +51,13 @@ while notFinished:
     expandNode = frontier.pop(0)
     newNode = ds.Node(k,expandNode.placements)
     explored.append(expandNode)
-
+    lastNodeStatus = []
+    for i in expandNode.placements:
+        if i.isNotEmpty():
+            lastNodeStatus.append(i.seeLastCard()[0])
+        else:
+            lastNodeStatus.append("9")
+    print(lastNodeStatus)
     print("")
     print("new node")
     newNode.currentNodeState()
@@ -67,15 +65,15 @@ while notFinished:
     for i in range(k):
         if(notFinished):
             for j in range(k):
-                if j == i:
+                if j == i or lastNodeStatus[i] >= lastNodeStatus[j]:
                     continue
                 # print(i)
                 # print(j)
                 # print(" ")
-                if newNode.changeCardPlace(i, j, explored, frontier):
+                if newNode.changeCardPlace(i, j,frontier,explored):
                     # print("append")
                     frontier.append(newNode)
-                    if newNode.checkFinalState(2):
+                    if newNode.checkFinalState(6):
                         print("")
                         print("final result")
                         newNode.currentNodeState()

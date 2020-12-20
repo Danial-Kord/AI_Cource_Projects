@@ -1,61 +1,50 @@
 import copy
 
-class Card:
-    def __init__(self,color,number):
-         #R,G or B
-        self.color = color
-        self.number = number
-
-    def getCardData(self):
-        return ""+self.color+ str(self.number)
-
 class Placement:
-    def __init__(self):
-        self.contain = []
-        self.length = 0
-
+    def __init__(self,data):
+        self.contain = data
+        self.length = len(data)
+        print("data : "+data +" len :" + str(self.length))
     def addCard(self,input,noCondition = False):
-        self.contain.append(input)
-        self.length += 1
-
+        self.length+=2
+        self.contain += input
 
     def canAddCard(self,input,noCondition = False):
         if noCondition or self.length == 0:
             return True  
-        else:    
-            if self.contain[self.length-1].number > input.number:
+        else:   
+            if self.contain[-2] > input[0]:
                 return True
             else:
                 return False
+
+
     def isNotEmpty(self):
         return self.length > 0
 
     def seeLastCard(self):
-        return self.contain[self.length-1]
+        return self.contain[-2:]
 
     def popLastCard(self):
-        self.length-=1
-        return self.contain.pop(self.length)
+        out = self.contain[-2:]
+        self.length-=2
+        self.contain = self.contain[0:-2]
+        return out
     
     def PlacementfinalState(self,maxLength):
         if(self.length == 0):
             return True
         if(self.length == maxLength):
-            for i in range(1,maxLength):
-                if self.contain[i-1].color != self.contain[i].color:
+            last = self.contain[1]
+            for i in range(1,maxLength,2):
+                if self.contain[i] != last:
                     return False
             return True
         else:
             return False
 
     def placementData(self):
-        if(self.length == 0):
-            return "#"
-        
-        t = ""
-        for i in self.contain:
-            t += i.getCardData() + " "
-        return t
+        return self.contain
 
 class Node:
     def __init__(self,length,lastNodePlacement):
@@ -72,28 +61,22 @@ class Node:
     def changeCardPlace(self,i,j,explored = None,frontier = None):
         # print("change status from :")
         # self.currentNodeState()
-        if self.placements[i].isNotEmpty():
-            if self.placements[j].canAddCard(self.placements[i].seeLastCard()):
-                self.placements[j].addCard(self.placements[i].seeLastCard())
-                self.placements[i].popLastCard()
-                # print("to : ")
-                # self.currentNodeState()
-                # print()
-                if explored is not None:
-                    for b in explored:
-                        if self.compareWith(b):
-                            self.placements[i].addCard(self.placements[j].seeLastCard())
-                            self.placements[j].popLastCard()
-                            return False
-                if frontier is not None:
-                    for b in frontier:
-                        if self.compareWith(b):
-                            self.placements[i].addCard(self.placements[j].seeLastCard())
-                            self.placements[j].popLastCard()
-                            return False
-                return True
-        else:
-            return False
+        self.placements[j].addCard(self.placements[i].popLastCard())
+
+        # print("to : ")
+        # self.currentNodeState()
+        # print()
+        if explored is not None:
+            for b in explored:
+                if self.compareWith(b):
+                    self.placements[i].addCard(self.placements[j].popLastCard())
+                    return False
+        if frontier is not None:
+            for b in frontier:
+                if self.compareWith(b):
+                    self.placements[i].addCard(self.placements[j].popLastCard())
+                    return False
+        return True
 
     def compareWith(self,otherNode):
         check = False
@@ -107,8 +90,7 @@ class Node:
         return True
 
     def PlaceIndexTextData(self,index):
-        t = self.placements[index].placementData()
-        return t
+        return self.placements[index].placementData()
 
     def currentNodeState(self):
         for i in range(self.length):

@@ -12,12 +12,15 @@ n = int(input1[2]) #number of every color
 places = []
 for i in range(k):
     t = input("enter values with space blank between them : ")
-    placementI = ds.Placement()
     if(t != "#"):
-        data = t.split(" ")
-        for j in data:
-            placementI.addCard(ds.Card(j[1],int(j[0])))
-    places.append(placementI)
+        data = t.replace(" ","")
+        placementI = ds.Placement(data)
+        places.append(placementI)
+    else:
+        placementI = ds.Placement("")
+        places.append(placementI)     
+
+    
 
 
 
@@ -49,14 +52,19 @@ while notFinished:
     expandNode = frontier.pop(0)
     newNode = ds.Node(k,expandNode.placements)
     explored.append(expandNode)
-
+    lastNodeStatus = []
+    for i in expandNode.placements:
+        if i.isNotEmpty():
+            lastNodeStatus.append(i.seeLastCard())
+        else:
+            lastNodeStatus.append("9")
     print("")
     print("new node")
     newNode.currentNodeState()
 
     for i in range(k):
         for j in range(k):
-            if j == i:
+            if j == i or lastNodeStatus[i] >= lastNodeStatus[j]:
                 continue
             # print(i)
             # print(j)
@@ -64,7 +72,7 @@ while notFinished:
             if newNode.changeCardPlace(i, j, explored, frontier):
                 # print("append")
                 frontier.append(newNode)
-                if newNode.checkFinalState(n):
+                if newNode.checkFinalState(2*n):
                     print("")
                     print("final result")
                     newNode.currentNodeState()
