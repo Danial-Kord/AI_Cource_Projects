@@ -58,7 +58,8 @@ class Placement:
         return t
 
 class Node:
-    def __init__(self,length,lastNodePlacement):
+
+    def __init__(self,length,lastNodePlacement,depth = 0):
         # self.placements = []
         # for i in range(length):
         #     elemnt = array[i]
@@ -68,6 +69,10 @@ class Node:
         #     self.placements.append(p)
         self.placements = copy.deepcopy(lastNodePlacement)
         self.length = length
+        self.depth = depth
+
+    def setDepth(self,depth):
+        self.depth = delattr
 
     def changeCardPlace(self,i,j,explored = None,frontier = None):
         # print("change status from :")
@@ -91,6 +96,7 @@ class Node:
                             self.placements[i].addCard(self.placements[j].seeLastCard())
                             self.placements[j].popLastCard()
                             return False
+                self.depth+=1
                 return True
         else:
             return False
