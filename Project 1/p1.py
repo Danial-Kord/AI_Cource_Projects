@@ -88,7 +88,8 @@ while cond:
                 print("\nnode")
                 for z in newStation:
                     print(z)
+                print(len(explored))
                 cond = False
                 break
             newStation = copy.deepcopy(expandNode)
-        explored.append(expandNode)
+    explored.append(expandNode)
