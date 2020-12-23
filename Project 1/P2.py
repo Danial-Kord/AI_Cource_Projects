@@ -37,16 +37,22 @@ for i in range(k):
     
 
 
-
+depth = 1
+frontierDepth = []
 cond = True
 frontier.append(stations)
-
+frontierDepth.append(0)
 newStation = None
 while cond:
 
     if len(frontier) == 0:
-        break
-    expandNode = frontier.pop(0)
+        frontierDepth = []
+        frontier = []
+        explored = []
+        depth+=1
+        frontier.append(stations)
+        frontierDepth.append(0)
+    expandNode = frontier.pop()
     newStation = copy.deepcopy(expandNode)
     lastNodeStatus = []
     for z in range(k):
@@ -57,6 +63,9 @@ while cond:
     print("\nnode")
     for z in newStation:
         print(z)
+
+    newDepth = frontierDepth.pop()
+
 
     for i in range(k):
         for j in range(k):
@@ -80,8 +89,9 @@ while cond:
             if(temp):
                 newStation = copy.deepcopy(expandNode)
                 continue
-
-            frontier.append(newStation)
+            if(newDepth+1 != depth):
+                frontierDepth.append(newDepth+1)
+                frontier.append(newStation)
             if checkFinalState(newStation, 2 * n):
                 print("")
                 print("final result")
