@@ -1,82 +1,91 @@
-import ds
+import copy
+
+def getLastCard(input):
+    return int(input[-2])
+
+def checkFinalState(data):
+    t = data[1]
+    for i in range(1,len(data),2):
+        if(t != data[i]):
+            return False
+    return True
 
 frontier = []
 explored = []
 
 input1 = input("enter: stations(K) Colors(m) number od every card(n) : ")
 input1 = input1.split(" ")
-k = int(input1[0]) #k places
-m = int(input1[1]) #color types
-n = int(input1[2]) #number of every color
+k = int(input1[0]) 
+m = int(input1[1]) 
+n = int(input1[2]) 
 
 places = []
 for i in range(k):
     t = input("enter values with space blank between them : ")
     if(t != "#"):
         data = t.replace(" ","")
-        placementI = ds.Placement(data)
-        places.append(placementI)
+        places.append(data)
     else:
-        placementI = ds.Placement("")
-        places.append(placementI)     
+        data = t.replace("#","")
+        places.append(data)
 
     
 
 
 
-root = ds.Node(k,places)
-root.currentNodeState()
-
-
-# root.changeCardPlace(0,2)
-
-# root.currentNodeState()
-
-print("  ")
-
-
-# root2.currentNodeState()
-
-
-# will use the "before node sxpandation condition" for optimization purposes
-
 notFinished = True
-frontier.append(root)
+frontier.append(places)
 
 newNode = None
-print("start")
 while notFinished:
 
     if len(frontier) == 0:
         break
     expandNode = frontier.pop(0)
-    newNode = ds.Node(k,expandNode.placements)
+    newNode = expandNode.copy()
     explored.append(expandNode)
     lastNodeStatus = []
-    for i in expandNode.placements:
-        if i.isNotEmpty():
-            lastNodeStatus.append(i.seeLastCard())
+    for i in expandNode:
+        if i != "":
+            lastNodeStatus.append(getLastCard(i))
         else:
-            lastNodeStatus.append("9")
+            lastNodeStatus.append(9)
     print("")
     print("new node")
-    newNode.currentNodeState()
+    for i in newNode:
+        print(i)
 
     for i in range(k):
         for j in range(k):
             if j == i or lastNodeStatus[i] >= lastNodeStatus[j]:
                 continue
-            # print(i)
-            # print(j)
-            # print(" ")
-            if newNode.changeCardPlace(i, j, explored, frontier):
-                # print("append")
-                frontier.append(newNode)
-                if newNode.checkFinalState(2*n):
+            
+            temp = False
+
+            new = newNode[i][-2:]
+            newNode[i] = newNode[i][0:-2]
+            newNode[j] += new
+            for v in frontier:
+                if(v == newNode):
+                    temp = True
+                    break
+            if(temp):
+                continue
+            for v in explored:
+                if(v == newNode):
+                    temp = True
+                    break
+            if(temp):
+                continue
+
+            # print("append")
+            frontier.append(newNode)
+            if(len(newNode) == 2*n):
+                if checkFinalState(newNode):
                     print("")
                     print("final result")
                     newNode.currentNodeState()
                     notFinished = False
                     break
-                newNode = ds.Node(k,expandNode.placements)
+            newNode = expandNode.copy()
 

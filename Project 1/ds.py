@@ -48,13 +48,6 @@ class Placement:
 
 class Node:
     def __init__(self,length,lastNodePlacement):
-        # self.placements = []
-        # for i in range(length):
-        #     elemnt = array[i]
-        #     for
-        #     p = Placement()
-        #     p.addCard(.contain[i])
-        #     self.placements.append(p)
         self.placements = copy.deepcopy(lastNodePlacement)
         self.length = length
 
