@@ -1,44 +1,32 @@
 import ds
 
-
-def finalResult(resultNode):
-    print("")
-    print("final result")
-    resultNode.currentNodeState()
-    print("")
-    print("result depth:")
-    print(resultNode.depth)
-    print("")
-    print("in memory nodes")
-    print("explored nodes : " + str(len(explored)))
-    print("all nodes nodes : " + str(len(frontier) + len(explored)))
-
-
-
 frontier = []
 explored = []
+k = 3 #k places
 
-input1 = input("enter: stations(K) Colors(m) number od every card(n) : ")
-input1 = input1.split(" ")
-k = int(input1[0]) #k places
-m = int(input1[1]) #color types
-n = int(input1[2]) #number of every color
+place1 = ds.Placement()
+card1 = ds.Card("R",1)
+card2 = ds.Card("G",2)
+place1.addCard(card1,True)
+place1.addCard(card2,True)
 
-places = []
-for i in range(k):
-    t = input("enter values with space blank between them : ")
-    placementI = ds.Placement()
-    if(t != "#"):
-        data = t.split(" ")
-        for j in data:
-            placementI.addCard(ds.Card(j[1],int(j[0])))
-    places.append(placementI)
+print(place1.placementData())
+
+place2 = ds.Placement()
+card12 = ds.Card("G",3)
+card22 = ds.Card("R",4)
+place2.addCard(card12,True)
+place2.addCard(card22,True)
+
+place3 = ds.Placement()
 
 
+print(place2.placementData())
 
-root = ds.Node(k,places)
+places = [place1,place2,place3]
+
+root = ds.Node(3,places)
 root.currentNodeState()
-
 
 # root.changeCardPlace(0,2)
 
@@ -56,24 +44,38 @@ notFinished = True
 frontier.append(root)
 
 newNode = None
+
+graphDepth=1
+
 print("start")
 while notFinished:
 
     if len(frontier) == 0:
+        print("no answer!")
         break
-    expandNode = frontier.pop(0)
-    newNode = ds.Node(k,expandNode.placements,expandNode.depth)
-    explored.append(expandNode)
+    
+    expandNode = frontier[0]
+    l = len(frontier)
+    index = 0
+    for i in range(1,l):
+        if(frontier[i].H < expandNode.H):
+            index = i
+    expandNode = frontier.pop(index)
 
-    print("")
-    print("new node")
-    newNode.currentNodeState()
+    newNode = ds.Node(k,expandNode.placements,expandNode.depth)
+
+    explored.append(expandNode)
     condidates = []
     for i in expandNode.placements:
         if(i.isNotEmpty()):
             condidates.append(i.seeLastCard().number)
         else:
             condidates.append(-1)
+
+    print("")
+    print("new node")
+    newNode.currentNodeState()
+
     for i in range(k):
         for j in range(k):
             if j == i:
@@ -85,12 +87,14 @@ while notFinished:
                 if condidates[j] > condidates[i] or condidates[j] == -1:
                     if newNode.changeCardPlace(i, j, explored, frontier):
                         # print("append")
+
                         frontier.append(newNode)
-                        if newNode.checkFinalState(n):
-                            finalResult(newNode)
+                        if newNode.checkFinalState(2):
+                            print("")
+                            print("final result")
+                            newNode.currentNodeState()
                             notFinished = False
-
                             break
+                        newNode.calculateH()
                         newNode = ds.Node(k,expandNode.placements,expandNode.depth)
-
 

@@ -1,6 +1,7 @@
 import ds
 
 
+
 def finalResult(resultNode):
     print("")
     print("final result")
@@ -40,6 +41,7 @@ root = ds.Node(k,places)
 root.currentNodeState()
 
 
+
 # root.changeCardPlace(0,2)
 
 # root.currentNodeState()
@@ -56,24 +58,45 @@ notFinished = True
 frontier.append(root)
 
 newNode = None
+
+graphDepth=1
+# root.calculateH()
+# print(root.H)
+
+# input()
+
+
 print("start")
 while notFinished:
 
     if len(frontier) == 0:
+        print("no answer!")
         break
-    expandNode = frontier.pop(0)
-    newNode = ds.Node(k,expandNode.placements,expandNode.depth)
-    explored.append(expandNode)
+    
+    expandNode = frontier[0]
+    l = len(frontier)
+    index = 0
+    for i in range(1,l):
+        print(frontier[i].H)
+        if(frontier[i].H < expandNode.H):
+            expandNode = frontier[i]
+            index = i
+    expandNode = frontier.pop(index)
 
-    print("")
-    print("new node")
-    newNode.currentNodeState()
+    newNode = ds.Node(k,expandNode.placements,expandNode.depth)
+
+    explored.append(expandNode)
     condidates = []
     for i in expandNode.placements:
         if(i.isNotEmpty()):
             condidates.append(i.seeLastCard().number)
         else:
             condidates.append(-1)
+
+    print("")
+    print("new node")
+    newNode.currentNodeState()
+
     for i in range(k):
         for j in range(k):
             if j == i:
@@ -85,12 +108,11 @@ while notFinished:
                 if condidates[j] > condidates[i] or condidates[j] == -1:
                     if newNode.changeCardPlace(i, j, explored, frontier):
                         # print("append")
+                        newNode.calculateH()
                         frontier.append(newNode)
                         if newNode.checkFinalState(n):
                             finalResult(newNode)
                             notFinished = False
-
                             break
                         newNode = ds.Node(k,expandNode.placements,expandNode.depth)
-
 

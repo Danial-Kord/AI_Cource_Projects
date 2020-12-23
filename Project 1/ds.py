@@ -70,6 +70,8 @@ class Node:
         self.placements = copy.deepcopy(lastNodePlacement)
         self.length = length
         self.depth = depth
+        self.H = 0
+
 
     def setDepth(self,depth):
         self.depth = delattr
@@ -77,29 +79,47 @@ class Node:
     def changeCardPlace(self,i,j,explored = None,frontier = None):
         # print("change status from :")
         # self.currentNodeState()
-        if self.placements[i].isNotEmpty():
-            if self.placements[j].canAddCard(self.placements[i].seeLastCard()):
-                self.placements[j].addCard(self.placements[i].seeLastCard())
-                self.placements[i].popLastCard()
-                # print("to : ")
-                # self.currentNodeState()
-                # print()
-                if explored is not None:
-                    for b in explored:
-                        if self.compareWith(b):
-                            self.placements[i].addCard(self.placements[j].seeLastCard())
-                            self.placements[j].popLastCard()
-                            return False
-                if frontier is not None:
-                    for b in frontier:
-                        if self.compareWith(b):
-                            self.placements[i].addCard(self.placements[j].seeLastCard())
-                            self.placements[j].popLastCard()
-                            return False
-                self.depth+=1
-                return True
-        else:
-            return False
+        
+            
+        self.placements[j].addCard(self.placements[i].seeLastCard())
+        self.placements[i].popLastCard()
+        # print("to : ")
+        # self.currentNodeState()
+        # print()
+        if explored is not None:
+            for b in explored:
+                if self.compareWith(b):
+                    self.placements[i].addCard(self.placements[j].seeLastCard())
+                    self.placements[j].popLastCard()
+                    return False
+        if frontier is not None:
+            for b in frontier:
+                if self.compareWith(b):
+                    self.placements[i].addCard(self.placements[j].seeLastCard())
+                    self.placements[j].popLastCard()
+                    return False
+        self.depth+=1
+        return True
+
+
+
+    def calculateH(self):
+        out = 0
+        for i in self.placements:
+            if i.isNotEmpty():
+                temp = 0
+                l = i.length
+                baseColor = i.contain[0].color
+                checkNum = i.contain[0].number
+                for j in range(1,l):
+                    if i.contain[j].color == baseColor and i.contain[j].number < checkNum:
+                        temp+=1
+                    else:
+                        out += l-temp
+                        break
+        self.H = out
+
+
 
     def compareWith(self,otherNode):
         check = False

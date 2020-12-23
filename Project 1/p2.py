@@ -1,5 +1,25 @@
 import ds
 
+lastExploredLen = 0
+lastFrontierLen = 0
+
+def finalResult(resultNode):
+    print("")
+    print("final result")
+    resultNode.currentNodeState()
+    print("")
+    print("result depth:")
+    print(resultNode.depth)
+    print("")
+    print("in memory nodes")
+    print("explored nodes : " + str(len(explored)))
+    print("all nodes nodes : " + str(len(frontier) + len(explored)))
+
+    print("all nodes that have been made before last depth search")
+    print("explored nodes : " + str(lastExploredLen))
+    print("all nodes nodes : " + str(lastFrontierLen + lastExploredLen))
+
+
 frontier = []
 explored = []
 
@@ -51,10 +71,12 @@ while notFinished:
     if len(frontier) == 0:
         graphDepth+=1
         print("changing max depth to " + str(graphDepth))
-        frontier = []
-        explored = []
+        lastFrontierLen+=len(frontier)
+        lastExploredLen+=len(explored)
+        frontier.clear()
+        explored.clear()
         frontier.append(root)
-    expandNode = frontier.pop(len(frontier)-1)
+    expandNode = frontier.pop()
     newNode = ds.Node(k,expandNode.placements,expandNode.depth)
 
     explored.append(expandNode)
@@ -62,23 +84,28 @@ while notFinished:
     print("")
     print("new node")
     newNode.currentNodeState()
-
+    condidates = []
+    for i in expandNode.placements:
+        if(i.isNotEmpty()):
+            condidates.append(i.seeLastCard().number)
+        else:
+            condidates.append(-1)
     for i in reversed(range(k)):
-        for j in range(k):
+        for j in reversed(range(k)):
             if j == i:
                 continue
             # print(i)
             # print(j)
             # print(" ")
-            if newNode.changeCardPlace(i, j, explored, frontier):
-                # print("append")
-                if newNode.depth != graphDepth:
-                    frontier.append(newNode)
-                if newNode.checkFinalState(n):
-                    print("")
-                    print("final result")
-                    newNode.currentNodeState()
-                    notFinished = False
-                    break
-                newNode = ds.Node(k,expandNode.placements,expandNode.depth)
+            if condidates[i] != -1:
+                if condidates[j] > condidates[i] or condidates[j] == -1: 
+                    if newNode.changeCardPlace(i, j, explored, frontier):
+                        # print("append")
+                        if newNode.depth != graphDepth:
+                            frontier.append(newNode)
+                        if newNode.checkFinalState(n):
+                            finalResult(newNode)
+                            notFinished = False
+                            break
+                        newNode = ds.Node(k,expandNode.placements,expandNode.depth)
 
