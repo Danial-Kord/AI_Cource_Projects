@@ -7,6 +7,8 @@ class element:
         self.blockColors = False
         self.colorDomain = colorDomain
         self.numberDomain = numberDomain
+        self.colorDomainLen = 0
+        self.numberDomainLen = 0
 
     def blockNumber(self):
         self.blockNums = True
@@ -16,15 +18,19 @@ class element:
 
     def setColorDomain(self,newDomain):
         self.colorDomain = newDomain
+        self.colorDomainLen = len(newDomain)/2
 
     def setNumberDomain(self,newDomain):
         self.numberDomain = newDomain
+        self.numberDomainLen = len(newDomain)/2
     
     def setColorConstraint(self,constraint):
         self.colorDomain = self.colorDomain.replace(constraint,"")
+        self.colorDomainLen = len(self.colorDomain)/2
         return len(self.colorDomain) is not 0
 
     def setNumberConstraint(self,constraint):
         self.numberDomain = self.numberDomain.replace(constraint,"")
+        self.numberDomainLen = len(self.numberDomain)/2
         return len(self.numberDomain) is not 0
             
