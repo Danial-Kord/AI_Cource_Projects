@@ -84,10 +84,12 @@ def printData(table):
     for i in table:
         text = ""
         for j in i:
-            c = j.color
             n1 = j.number
+            c = j.color
             if c is None:
                 c = "#"
+            else:
+                c = colors[m - j.color]
             if n1 is None:
                 n1 = "*"
             text += str(n1) + str(c) +" "
@@ -140,13 +142,17 @@ for i in range(n):
     table.append(row)
 
 printData(table)
-input("wait...in")
+input("wait1...in")
 
 
 
 
 printconstraints(table)
-input("wait...in")
+input("wait2...in")
+
+
+
+
 
 for i in table:
     for j in i:
@@ -155,51 +161,158 @@ for i in table:
             exit()
 
 printconstraints(table)
-input("wait...in")
+input("wait4...in")
+
+
 
 
 actions = []
 
+initialTable = copy.deepcopy(table)
+
 newTable = copy.deepcopy(table)
 
 numberMrv = []
-minNumberDomainLen = newTable[0][0].numberDomainLen
+minNumberDomainLen = -1
 
 colorMrv = []
-minColorDomainLen = newTable[0][0].colorDomainLen
+minColorDomainLen = -1
 
 currentActionSecuence = ""
 forbiddenActions = []
 
 
-test = []
+establishedActions = {}
 
-a = ("C",1,2)
-test2 = {}
-test2[a] = 1
+
+
 
 
 while(True):
+    colorMrv.clear()
+    numberMrv.clear()
+    minNumberDomainLen = -1
+    minColorDomainLen = -1
     for i in range(n):
-        for j in range(m):
+        for j in range(n):
             # finding mrv of color and number atributes
             if table[i][j].number == None:
-                if table[i][j].numberDomainLen < minNumberDomainLen:
+                if table[i][j].numberDomainLen < minNumberDomainLen or minNumberDomainLen == -1:
                     numberMrv.clear()
                     numberMrv.append(table[i][j])
+                    minNumberDomainLen = table[i][j].numberDomainLen
                 elif table[i][j].numberDomainLen == minNumberDomainLen:
                     numberMrv.append(table[i][j])
             if table[i][j].color == None:
-                if table[i][j].colorDomainLen < minColorDomainLen:
+                if table[i][j].colorDomainLen < minColorDomainLen or minColorDomainLen == -1:
                     colorMrv.clear()
                     colorMrv.append(table[i][j])
+                    minColorDomainLen = table[i][j].colorDomainLen
                 elif table[i][j].colorDomainLen == minColorDomainLen:
                     colorMrv.append(table[i][j])
-    # if len(numberMrv) == 1:
-        
-    #     currentActionSecuence+= str(numberMrv[0].index)+ "N"
-    #     for i in forbiddenActions:
-    #         if i.startswith(currentActionSecuence):
+
+    currentActionSecuenceTemp = copy.deepcopy(currentActionSecuence)
+
+    searchNumber = True
+    if len(numberMrv) == 0 and len(colorMrv) == 0:
+        print("this is the end!")
+        break
+    elif len(numberMrv) > len(colorMrv) or len(numberMrv) == 0:
+        searchNumber = False
+
+
+    if searchNumber:
+        selectedNum = None
+        for j in numberMrv[0].numberDomain:
+            currentActionSecuenceTemp = currentActionSecuence + str(numberMrv[0].index) + str(j)+ "N"
+            check = True
+            for i in forbiddenActions:
+                if i.startswith(currentActionSecuenceTemp):
+                    check = False
+                    break
+            if check:
+                newTable[numberMrv[0].i][numberMrv[0].j].number = j
+                if forwardChecking(newTable,newTable[numberMrv[0].i][numberMrv[0].j]):
+                    table = copy.deepcopy(newTable)
+                    selectedNum = j
+                    break
+                else:
+                    newTable = copy.deepcopy(table)
+                    forbiddenActions.append(currentActionSecuenceTemp)
+        if selectedNum is not None:
+            establishedActions[("N",numberMrv[0].i,numberMrv[0].j)] = selectedNum
+            currentActionSecuence = currentActionSecuenceTemp
+        else:
+            table = copy.deepcopy(initialTable)
+            establishedActions.popitem()
+            if len(establishedActions) == 0:
+                print("No possible answer for this CSP!")
+                break
+            forbiddenActions.append(currentActionSecuence)
+            for i in establishedActions:
+                node = table[i[1],i[2]]
+                if i[0] == "N":
+                    node.number = establishedActions[i]
+                    forwardChecking(table,node)
+                elif i[0] == "C":
+                    node.color = establishedActions[i]
+                    forwardChecking(table,node)
+
+    else:
+        selectedColor = None
+        for j in colorMrv[0].colorDomain:
+            print("<<" + str(j) + ">>" + str(colorMrv[0].colorDomain))
+            currentActionSecuenceTemp = currentActionSecuence + str(colorMrv[0].index) + str(j)+ "C"
+            check = True
+            for i in forbiddenActions:
+                if i.startswith(currentActionSecuenceTemp):
+                    check = False
+                    break
+            if check:
+                newTable[colorMrv[0].i][colorMrv[0].j].color = j
+                if forwardChecking(newTable,newTable[colorMrv[0].i][colorMrv[0].j]):
+                    table = copy.deepcopy(newTable)
+                    selectedColor = j
+                    print("selec :/ " + "--"+str(colorMrv[0].i) +"   " + str(colorMrv[0].j) + "--" + str(j))
+                    break
+                else:
+                    newTable = copy.deepcopy(table)
+                    print("--"+str(colorMrv[0].i) +"   " + str(colorMrv[0].j) + "--" + str(j))
+                    forbiddenActions.append(currentActionSecuenceTemp)
+        if selectedColor is not None:
+            establishedActions[("C",colorMrv[0].i,colorMrv[0].j)] = selectedColor
+            currentActionSecuence = currentActionSecuenceTemp
+        else:
+            printData(table)
+            printconstraints(table)
+            table = copy.deepcopy(initialTable)
+            
+            establishedActions.popitem()
+            if len(establishedActions) == 0:
+                print("No possible answer for this CSP!")
+                break
+            forbiddenActions.append(currentActionSecuence)
+            for i in establishedActions:
+                node = table[i[1],i[2]]
+                if i[0] == "N":
+                    node.number = establishedActions[i]
+                    forwardChecking(table,node)
+                elif i[0] == "C":
+                    node.color = establishedActions[i]
+                    forwardChecking(table,node)
+    
+printData(table)
+
+
+
+                
+                
+            
+
+
+            
+            
+
 
 
         
