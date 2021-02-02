@@ -5,8 +5,8 @@ class element:
         self.number = number
         self.blockNums = False
         self.blockColors = False
-        self.colorDomain = colorDomain
-        self.numberDomain = numberDomain
+        self.colorDomain = set()
+        self.numberDomain = set()
         self.colorDomainLen = 0
         self.numberDomainLen = 0
         self.n = numberDomain
@@ -14,6 +14,8 @@ class element:
         self.i = i
         self.j = j
         self.index = i*self.n + j
+        self.setNumberDomain()
+        self.setColorDomain()
 
     def blockNumber(self):
         self.blockNums = True
@@ -21,23 +23,35 @@ class element:
     def blockColor(self):
         self.blockColors = True
 
-    def setColorDomain(self,newDomain):
-        self.colorDomain = newDomain
-        self.colorDomainLen = len(newDomain)/2
+    def setColorDomain(self):
+        for i in range(1,self.m+1):
+            self.colorDomain.add(i)
+        self.colorDomainLen = len(self.colorDomain)
 
-    def setNumberDomain(self,newDomain):
-        self.numberDomain = newDomain
-        self.numberDomainLen = len(newDomain)/2
+    def setNumberDomain(self):
+        for i in range(1,self.n+1):
+            self.numberDomain.add(i)
+        self.numberDomainLen = len(self.numberDomain)
     
     def setColorConstraint(self,constraint):
-        self.colorDomain = self.colorDomain.replace(constraint,"")
-        self.colorDomainLen = len(self.colorDomain)/2
-        return self.colorDomainLen is 0
+        try:
+            self.colorDomain.remove(constraint)
+            self.colorDomainLen = len(self.colorDomain)
+            return self.colorDomainLen is 0
+        except KeyError:
+            self.colorDomainLen = len(self.colorDomain)
+            return self.colorDomainLen is 0
+
+
 
     def setNumberConstraint(self,constraint):
-        self.numberDomain = self.numberDomain.replace(constraint,"")
-        self.numberDomainLen = len(self.numberDomain)/2
-        return self.numberDomainLen is 0
+        try:
+            self.numberDomain.remove(constraint)
+            self.numberDomainLen = len(self.numberDomain)
+            return self.numberDomainLen is 0
+        except KeyError:
+            self.numberDomainLen = len(self.numberDomain)
+            return self.numberDomainLen is 0
     
     # def setNumberConstraintGroup(self,compareNum,beGreater):
     #     if beGreater:
@@ -52,11 +66,11 @@ class element:
         number = compareNode.number
         if color < self.color:
             for i in range(1,number+1):
-                if self.setNumberConstraint(str(i)+","):
+                if self.setNumberConstraint(i):
                     return True
         elif color > self.color:
             for i in range(number,self.n+1):
-                if self.setNumberConstraint(str(i)+","):
+                if self.setNumberConstraint(i):
                     return True
         else:
             return True
@@ -67,11 +81,11 @@ class element:
         number = compareNode.number
         if number < self.number:
             for i in range(1,color+1):
-                if self.setColorConstraint(str(i)+","):
+                if self.setColorConstraint(i):
                     return True
         elif number > self.number:
             for i in range(color,self.m+1):
-                if self.setColorConstraint(str(i)+","):
+                if self.setColorConstraint(i):
                     return True
         else:
             return True

@@ -2,6 +2,12 @@ import ds
 import copy
 
 
+
+
+
+
+
+
 def forwardChecking(table,node):
     number = node.number
     color = node.color
@@ -10,30 +16,30 @@ def forwardChecking(table,node):
     if number != None:
         for i in range(n):
             if table[i][jIndex].number is None:
-                if table[i][jIndex].setNumberConstraint(str(number) +","):
+                if table[i][jIndex].setNumberConstraint(number):
                     return False
             if table[iIndex][i].number is None:
-                if table[iIndex][i].setNumberConstraint(str(number) +","):
+                if table[iIndex][i].setNumberConstraint(number):
                     return False
 
     if color is not None:
         if iIndex-1 >=0:
             checkNode = table[iIndex-1][jIndex]
             if checkNode.color is None:
-                checkNode.setColorConstraint(str(color)+",")
+                checkNode.setColorConstraint(color)
         if iIndex+1 < n:
             checkNode = table[iIndex+1][jIndex]
             if checkNode.color is None:
-                checkNode.setColorConstraint(str(color)+",")
+                checkNode.setColorConstraint(color)
         if jIndex-1 >=0:
             checkNode = table[iIndex][jIndex-1]
             if checkNode.color is None:
-                checkNode.setColorConstraint(str(color)+",")
+                checkNode.setColorConstraint(color)
 
         if jIndex+1 < n:
             checkNode = table[iIndex][jIndex+1]
             if checkNode.color is None:
-                checkNode.setColorConstraint(str(color)+",")
+                checkNode.setColorConstraint(color)
 
     if color is not None and number is not None:
         if iIndex-1 >=0:
@@ -92,8 +98,9 @@ def printconstraints(table):
     for i in table:
         text = ""
         for j in i:
-            text += str(j.index)+" " + j.numberDomain + "N " + j.colorDomain + "C " +"--"
+            text += str(j.index)+" " + str(j.numberDomain) + "N " + str(j.colorDomain) + "C " +"--"
         print(text)
+
 
             
 
@@ -110,14 +117,6 @@ n = int(input1[1])
 input1 = input("input colors : ")
 colors = input1.split(" ")
 
-initialColorConstraint = ""
-initialNumberConstraint = ""
-
-for i in range(n):
-    initialNumberConstraint += str(i+1) +","
-
-for i in range(m):
-    initialColorConstraint += str(i+1) +","
 
 for i in range(n):
     input2 = input()
@@ -144,11 +143,6 @@ printData(table)
 input("wait...in")
 
 
-# set initial constraints
-for i in table:
-    for j in i:
-        j.setColorDomain(initialColorConstraint)
-        j.setNumberDomain(initialNumberConstraint)
 
 
 printconstraints(table)
@@ -156,64 +150,57 @@ input("wait...in")
 
 for i in table:
     for j in i:
-        forwardChecking(table,j)
+        if forwardChecking(table,j) is False:
+            print("impossible soulotion input!")
+            exit()
 
 printconstraints(table)
 input("wait...in")
 
-# set number constraints
-for i in range(n):
-    for j in range(n):
-        if table[i][j].number is not None:
-            number = table[i][j].number
-            for k in range(n):
-                if k != j:
-                    table[i][k].setNumberConstraint(str(number) + ",")
-            for k in range(n):
-                if k != i:
-                    table[k][j].setNumberConstraint(str(number) + ",")
-        
-        if table[i][j].color is not None:
-            color = table[i][j].color
-            if i-1 >=0:
-                table[i-1][j].setColorConstraint(str(color) + ",")
-            if i+1 < n:
-                table[i+1][j].setColorConstraint(str(color) + ",")
-            if j-1 >=0:
-                table[i][j-1].setColorConstraint(str(color) + ",")
-            if j+1 < n:
-                table[i][j+1].setColorConstraint(str(color) + ",")
+
 actions = []
 
 newTable = copy.deepcopy(table)
 
 numberMrv = []
-minNumberDomain = newTable[0][0].numberDomainLen
+minNumberDomainLen = newTable[0][0].numberDomainLen
 
 colorMrv = []
-minColorDomain = newTable[0][0].colorDomainLen
+minColorDomainLen = newTable[0][0].colorDomainLen
 
 currentActionSecuence = ""
 forbiddenActions = []
+
+
+test = []
+
+a = ("C",1,2)
+test2 = {}
+test2[a] = 1
+
 
 while(True):
     for i in range(n):
         for j in range(m):
             # finding mrv of color and number atributes
             if table[i][j].number == None:
-                if table[i][j].numberDomainLen < minNumberDomain:
+                if table[i][j].numberDomainLen < minNumberDomainLen:
                     numberMrv.clear()
                     numberMrv.append(table[i][j])
-                elif table[i][j].numberDomainLen == minNumberDomain:
+                elif table[i][j].numberDomainLen == minNumberDomainLen:
                     numberMrv.append(table[i][j])
             if table[i][j].color == None:
-                if table[i][j].colorDomainLen < minColorDomain:
+                if table[i][j].colorDomainLen < minColorDomainLen:
                     colorMrv.clear()
                     colorMrv.append(table[i][j])
-                elif table[i][j].colorDomainLen == minColorDomain:
+                elif table[i][j].colorDomainLen == minColorDomainLen:
                     colorMrv.append(table[i][j])
-    if len(numberMrv) == 1:
-        currentActionSecuence+= str(numberMrv[0].index)+ "N"
+    # if len(numberMrv) == 1:
+        
+    #     currentActionSecuence+= str(numberMrv[0].index)+ "N"
+    #     for i in forbiddenActions:
+    #         if i.startswith(currentActionSecuence):
+
 
         
     
