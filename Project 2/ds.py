@@ -32,6 +32,12 @@ class element:
         for i in range(1,self.n+1):
             self.numberDomain.add(i)
         self.numberDomainLen = len(self.numberDomain)
+
+    
+    def addNumberDomain(self,newDomain):
+        self.numberDomain.add(newDomain)
+        self.numberDomainLen = len(self.numberDomain)
+
     
     def setColorConstraint(self,constraint):
         try:
@@ -90,6 +96,7 @@ class element:
         else:
             return True
         return False
+
 
 
             
