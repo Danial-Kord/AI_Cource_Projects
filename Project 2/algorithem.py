@@ -93,17 +93,22 @@ def findConstraints(node,table):
     node.setColorDomain()
     iIndex = node.i
     jIndex = node.j
+    colorDegree = 0
+    numberDegree = 0
     # print(str(iIndex) + "  " + str(jIndex) + "  " + "-- C" + str(node.colorDomain) + " ---- N" + str(node.numberDomain))
 
     for i in range(n):
         if table[i][jIndex].number is not None and i != iIndex:
+            numberDegree += 1
             node.setNumberConstraint(table[i][jIndex].number)
         if table[iIndex][i].number is not None and i != jIndex:
             node.setNumberConstraint(table[iIndex][i].number)
+            numberDegree += 1
 
     if iIndex-1 >=0:
         checkNode = table[iIndex-1][jIndex]
         if checkNode.color is not None:
+            colorDegree += 1
             node.setColorConstraint(checkNode.color)
         if checkNode.color is not None and checkNode.number is not None:
             if node.number is None and node.color is not None:
@@ -115,6 +120,7 @@ def findConstraints(node,table):
     if iIndex+1 < n:
         checkNode = table[iIndex+1][jIndex]
         if checkNode.color is not None:
+            colorDegree += 1
             node.setColorConstraint(checkNode.color)
         if checkNode.color is not None and checkNode.number is not None:
             if node.number is None and node.color is not None:
@@ -124,6 +130,7 @@ def findConstraints(node,table):
     if jIndex-1 >=0:
         checkNode = table[iIndex][jIndex-1]
         if checkNode.color is not None:
+            colorDegree += 1
             node.setColorConstraint(checkNode.color)
         if checkNode.color is not None and checkNode.number is not None:
             if node.number is None and node.color is not None:
@@ -134,12 +141,16 @@ def findConstraints(node,table):
     if jIndex+1 < n:
         checkNode = table[iIndex][jIndex+1]
         if checkNode.color is not None:
+            colorDegree += 1
             node.setColorConstraint(checkNode.color)
         if checkNode.color is not None and checkNode.number is not None:
             if node.number is None and node.color is not None:
                 node.setNumberConstraintGroup(checkNode)
             elif node.number is not None and node.color is None:
                 node.setColorConstraintGroup(checkNode)
+    
+    node.ColorDegree = colorDegree
+    node.NumberDegree = numberDegree
     # print(str(iIndex) + "  " + str(jIndex) + "  " + "-- C" + str(node.colorDomain) + " ---- N" + str(node.numberDomain))
     # input()
 
@@ -283,22 +294,30 @@ while(True):
                     numberMrv.append(table[i][j])
                     minNumberDomainLen = table[i][j].numberDomainLen
                 elif table[i][j].numberDomainLen == minNumberDomainLen:
-                    numberMrv.append(table[i][j])
+                    if table[i][j].NumberDegree > numberMrv[0].NumberDegree:
+                        numberMrv[0] = table[i][j]
             if table[i][j].color == None:
                 if table[i][j].colorDomainLen < minColorDomainLen or minColorDomainLen == -1:
                     colorMrv.clear()
                     colorMrv.append(table[i][j])
                     minColorDomainLen = table[i][j].colorDomainLen
                 elif table[i][j].colorDomainLen == minColorDomainLen:
-                    colorMrv.append(table[i][j])
+                    if table[i][j].ColorDegree > colorMrv[0].ColorDegree:
+                        colorMrv[0] = table[i][j]
 
     currentActionSecuenceTemp = copy.deepcopy(currentActionSecuence)
     newTable = copy.deepcopy(table)
     searchNumber = True
-    if len(numberMrv) == 0 and len(colorMrv) == 0:
+
+    currentNodeSelected = None
+
+    if minColorDomainLen == -1 and minNumberDomainLen == -1:
         print("this is the end!")
         break
-    elif (len(numberMrv) > len(colorMrv) or len(numberMrv) == 0) and len(colorMrv) != 0:
+    elif (minNumberDomainLen > minColorDomainLen or minNumberDomainLen == -1) and minColorDomainLen != -1:
+        searchNumber = False
+    # Method 2
+    elif minNumberDomainLen == -1:
         searchNumber = False
 
 
@@ -334,24 +353,24 @@ while(True):
             print(currentActionSecuence)
             printData(table)
             printconstraints(table)
-            table = copy.deepcopy(initialTable)
-            last = establishedActions.popitem()
+            # table = copy.deepcopy(initialTable)
             if len(establishedActions) == 0:
                 print("No possible answer for this CSP!")
                 break
+            last = establishedActions.popitem()
             forbiddenActions.append(currentActionSecuence)
             currentActionSecuence = ""
             for i in establishedActions:
                 node = table[i[1]][i[2]]
                 if i[0] == "N":
-                    node.number = establishedActions[i]
-                    forwardChecking(table,node)
-                    currentActionSecuence += str(node.index)+"," + str(j)+ "N"+"]"
+                    # node.number = establishedActions[i]
+                    # forwardChecking(table,node)
+                    currentActionSecuence += str(node.index)+"," + str(establishedActions[i])+ "N"+"]"
                 elif i[0] == "C":
-                    node.color = establishedActions[i]
-                    forwardChecking(table,node)
-                    currentActionSecuence += str(node.index)+"," + str(j)+ "C"+"]"
-            # backTrack(table,last)
+                    # node.color = establishedActions[i]
+                    # forwardChecking(table,node)
+                    currentActionSecuence += str(node.index)+"," + str(establishedActions[i])+ "C"+"]"
+            backTrack(table,last)
 
     else:
         selectedColor = None
@@ -382,24 +401,24 @@ while(True):
             print(currentActionSecuence)
             printData(table)
             printconstraints(table)
-            table = copy.deepcopy(initialTable)
-            last = establishedActions.popitem()
+            # table = copy.deepcopy(initialTable)
             if len(establishedActions) == 0:
                 print("No possible answer for this CSP!")
                 break
+            last = establishedActions.popitem()
             forbiddenActions.append(currentActionSecuence)
             currentActionSecuence = ""
             for i in establishedActions:
                 node = table[i[1]][i[2]]
                 if i[0] == "N":
-                    node.number = establishedActions[i]
-                    forwardChecking(table,node)
-                    currentActionSecuence += str(node.index)+"," + str(j)+ "N"+"]"
+                    # node.number = establishedActions[i]
+                    # forwardChecking(table,node)
+                    currentActionSecuence += str(node.index)+"," + str(establishedActions[i])+ "N"+"]"
                 elif i[0] == "C":
-                    node.color = establishedActions[i]
-                    forwardChecking(table,node)
-                    currentActionSecuence += str(node.index)+"," + str(j)+ "C"+"]"
-            # backTrack(table,last)
+                    # node.color = establishedActions[i]
+                    # forwardChecking(table,node)
+                    currentActionSecuence += str(node.index)+"," + str(establishedActions[i])+ "C"+"]"
+            backTrack(table,last)
     
 printData(table)
 

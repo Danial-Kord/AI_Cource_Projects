@@ -16,6 +16,8 @@ class element:
         self.index = i*self.n + j
         self.setNumberDomain()
         self.setColorDomain()
+        self.NumberDegree = 0
+        self.ColorDegree = 0
 
     def blockNumber(self):
         self.blockNums = True
