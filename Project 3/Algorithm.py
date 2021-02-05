@@ -44,6 +44,19 @@ def calculatePropability(dict):
     return uniGramDict
 
 
+def getPoemPropability(poem,unigram,bigram,l3,l2,l1,e):
+    words = poem.split(" ")
+    p = 0.0
+    for i in range(1,len(words)):
+        u = 0.0
+        if unigram.__contains__(words[i]):
+            u = unigram[words[i]]
+        b = 0.0
+        if bigram.__contains__(words[i-1] + " " + words[i]):
+            b = bigram[words[i-1] + " " + words[i]]
+        p += l3 * b + l2 * u + l1*e
+    return p
+
 
 def printItems(dict):
     for x, y in dict.items():
@@ -68,11 +81,11 @@ molaviiDict = getDictionary(molaviPath)
 cleanDict(molaviiDict[0],2)
 cleanDict(molaviiDict[1],2)
 
-l3 = 0.6
-l2 = 0.3
-l1 = 0.1
+l3 = 0.8
+l2 = 0.15
+l1 = 0.05
 
-e = 0.07
+e = 0.1
 
 
 ferdowsiUniGram = calculatePropability(ferdowsiDict[0])
@@ -91,11 +104,38 @@ trainSet.append((molaviUniGram,molaviBiGram))
 
 
 
-printItems(ferdowsiBiGram)
+
+testSetPath = "C:\\Danial\\Projects\\python\\AI_Cource_Projects\\Project 3\\test_set\\test_file.txt"
 
 
+successRate = 0
+allAnswwers = 0
+trueAnswers = 0
+with codecs.open(testSetPath, 'r', encoding='utf8') as f:
+    Lines = f.readlines()
+    allAnswwers = len(Lines)
+    for i in Lines:
+        text = i.split("\t")
+        answer = int(text[0])
+        p = []
+        poem = text[1]
+        for j in trainSet:
+            p.append(getPoemPropability(poem,j[0],j[1],l3,l2,l1,e))
+        
+        maximum = 0
+        index = 0
+        for j in range(len(p)):
+            if p[j] > maximum:
+                maximum = p[j]
+                index = j
+        if answer == index+1:
+            print("nice job!")
+            trueAnswers+=1
+        else:
+            print("wrong!")
 
-
+successRate = trueAnswers / allAnswwers
+print(successRate)
 
 
 
