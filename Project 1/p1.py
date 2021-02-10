@@ -12,7 +12,8 @@ def finalResult(resultNode):
     print("in memory nodes")
     print("explored nodes : " + str(len(explored)))
     print("all nodes nodes : " + str(len(frontier) + len(explored)))
-
+    print("way")
+    print(resultNode.way)
 
 
 frontier = []
@@ -62,12 +63,12 @@ while notFinished:
     if len(frontier) == 0:
         break
     expandNode = frontier.pop(0)
-    newNode = ds.Node(k,expandNode.placements,expandNode.depth)
+    newNode = ds.Node(k,expandNode.placements,expandNode.depth,expandNode.way)
     explored.append(expandNode)
 
-    print("")
-    print("new node")
-    newNode.currentNodeState()
+    # print("")
+    # print("new node")
+    # newNode.currentNodeState()
     condidates = []
     for i in expandNode.placements:
         if(i.isNotEmpty()):
@@ -91,6 +92,6 @@ while notFinished:
                             notFinished = False
 
                             break
-                        newNode = ds.Node(k,expandNode.placements,expandNode.depth)
+                        newNode = ds.Node(k,expandNode.placements,expandNode.depth,expandNode.way)
 
 

@@ -18,6 +18,7 @@ def finalResult(resultNode):
     print("all nodes that have been made before last depth search")
     print("explored nodes : " + str(lastExploredLen))
     print("all nodes nodes : " + str(lastFrontierLen + lastExploredLen))
+    print(resultNode.way)
 
 
 frontier = []
@@ -77,13 +78,13 @@ while notFinished:
         explored.clear()
         frontier.append(root)
     expandNode = frontier.pop()
-    newNode = ds.Node(k,expandNode.placements,expandNode.depth)
+    newNode = ds.Node(k,expandNode.placements,expandNode.depth,expandNode.way)
 
     explored.append(expandNode)
 
-    print("")
-    print("new node")
-    newNode.currentNodeState()
+    # print("")
+    # print("new node")
+    # newNode.currentNodeState()
     condidates = []
     for i in expandNode.placements:
         if(i.isNotEmpty()):
@@ -107,5 +108,5 @@ while notFinished:
                             finalResult(newNode)
                             notFinished = False
                             break
-                        newNode = ds.Node(k,expandNode.placements,expandNode.depth)
+                        newNode = ds.Node(k,expandNode.placements,expandNode.depth,expandNode.way)
 
